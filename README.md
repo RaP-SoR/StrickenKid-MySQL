@@ -61,8 +61,8 @@ Output: `build/bin/mysql.dll`
 
 ## Build (Linux, 32-bit)
 
-Locally or via GitHub Actions (`.github/workflows/build.yml`: Ubuntu 20.04/22.04/24.04, Debian 12/13).  
-Prefer the **ubuntu-20.04** artifact for wider runtime compatibility.
+Locally or via GitHub Actions (`.github/workflows/build.yml`: **Ubuntu 24.04**, **Debian 13**, plus **Windows Win32**).
+MariaDB Connector/C is built from the git submodule into the plugin (32-bit).
 
 ```bash
 cmake -S . -B build -DCMAKE_BUILD_TYPE=Release \

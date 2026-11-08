@@ -19,6 +19,17 @@ jobs:
         with:
           submodules: recursive
 
+      - name: Verify Connector/C submodule
+        shell: pwsh
+        run: |
+          if (-not (Test-Path "deps/mariadb-connector-c/CMakeLists.txt")) {
+            throw "MariaDB Connector/C submodule missing (deps/mariadb-connector-c)"
+          }
+          if (-not (Test-Path "deps/samp-plugin-sdk/plugincommon.h")) {
+            throw "samp-plugin-sdk submodule missing"
+          }
+          Write-Host "Submodules OK (Connector/C + SDK)"
+
       - name: Configure + build (Win32 / Ninja)
         shell: pwsh
         run: |
@@ -59,15 +70,8 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          # Build on the oldest glibc target first — that artifact runs on newer distros.
-          - name: ubuntu-20.04
-            container: ubuntu:20.04
-          - name: ubuntu-22.04
-            container: ubuntu:22.04
           - name: ubuntu-24.04
             container: ubuntu:24.04
-          - name: debian-12
-            container: debian:12
           - name: debian-13
             container: debian:13
     steps:
@@ -76,7 +80,6 @@ jobs:
           DEBIAN_FRONTEND: noninteractive
         run: |
           set -eux
-          . /etc/os-release
           apt-get update
           apt-get install -y --no-install-recommends ca-certificates
           dpkg --add-architecture i386
@@ -90,12 +93,21 @@ jobs:
             gcc-multilib \
             libc6-dev-i386 \
             libssl-dev:i386 \
-            zlib1g-dev:i386
+            zlib1g-dev:i386 \
+            file \
+            binutils
 
       - name: Checkout
         uses: actions/checkout@v4
         with:
           submodules: recursive
+
+      - name: Verify Connector/C submodule
+        run: |
+          set -eux
+          test -f deps/mariadb-connector-c/CMakeLists.txt
+          test -f deps/samp-plugin-sdk/plugincommon.h
+          echo "Submodules OK (Connector/C + SDK)"
 
       - name: Configure (i386)
         run: |
