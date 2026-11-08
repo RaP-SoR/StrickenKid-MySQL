@@ -1,0 +1,6 @@
+[submodule "deps/samp-plugin-sdk"]
+	path = deps/samp-plugin-sdk
+	url = https://github.com/maddinat0r/samp-plugin-sdk.git
+[submodule "deps/mariadb-connector-c"]
+	path = deps/mariadb-connector-c
+	url = https://github.com/mariadb-corporation/mariadb-connector-c.git

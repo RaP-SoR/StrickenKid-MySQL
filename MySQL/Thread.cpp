@@ -1,6 +1,7 @@
 /*
-	SA:MP MySQL Plugin v2.1
+	SA:MP MySQL Plugin v2.2
 	Copyright (c) 2011, StrickenKid
+	Copyright (c) 2026, RaPSoR
 
 
 	This program is free software: you can redistribute it and/or modify

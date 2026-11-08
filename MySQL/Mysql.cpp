@@ -1,6 +1,7 @@
 /*
-	SA:MP MySQL Plugin v2.1
+	SA:MP MySQL Plugin v2.2
 	Copyright (c) 2011, StrickenKid
+	Copyright (c) 2026, RaPSoR
 
 
 	This program is free software: you can redistribute it and/or modify
@@ -56,17 +57,23 @@ int MySQL::init( int log, bool print )
 
 int MySQL::connect( const char *host, const char *user, const char *pass, const char *db, my_bool auto_reconnect )
 {
+	// SA-MP/Pawn strings are typically Windows-1252/Latin-1 on the wire.
+	// Keep the connection charset Latin-1 so the server can convert into
+	// utf8mb4 table storage. Gamemodes may still call mysql_set_character_set().
+	mysql_options( mysql, MYSQL_SET_CHARSET_NAME, "latin1" );
+	mysql_options( mysql, MYSQL_OPT_RECONNECT, &auto_reconnect );
+
 	if ( mysql_real_connect( mysql, host, user, pass, db, 0, NULL, 0 ) )
 	{
-		mysql_options( mysql, MYSQL_OPT_RECONNECT, &auto_reconnect );
-
 		logprintf( "[MySQL] Connected (%d) to '%s'@'%s'.", id, user, mysql_get_host_info( mysql ) );
 		logprintf( "[MySQL] Server Version %s.", mysql_get_server_info( mysql ) );
+		logprintf( "[MySQL] Connection charset: %s.", mysql_character_set_name( mysql ) );
 
 		if ( logtype > 0 )
 		{
 			Log( "Connected (%d) to %s @ %s.", id, user, mysql_get_host_info( mysql ) );
 			Log( "MySQL Server Version %s.", mysql_get_server_info( mysql ) );
+			Log( "Connection charset: %s.", mysql_character_set_name( mysql ) );
 		}
 
 		connected = true;

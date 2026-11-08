@@ -1,7 +1,7 @@
 /*
-	SA:MP MySQL Plugin v2.1
+	SA:MP MySQL Plugin v2.2
 	Copyright (c) 2011, StrickenKid
-
+	Copyright (c) 2026, RaPSoR
 
 	This program is free software: you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -22,7 +22,7 @@
 
 #include "Main.h"
 
-#define PLUGIN_VERSION "2.1.1"
+#define PLUGIN_VERSION "2.2"
 #define MAX_CONNECTIONS 4
 
 struct queryInfo
