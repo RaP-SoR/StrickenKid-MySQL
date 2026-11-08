@@ -28,6 +28,10 @@ set(WITH_DYNCOL ON CACHE BOOL "" FORCE)
 set(DEFAULT_SSL_VERIFY_SERVER_CERT OFF CACHE BOOL "" FORCE)
 # Avoid empty INSTALL_PLUGINDIR when Connector/C is a subproject.
 set(INSTALL_PLUGINDIR "lib/mariadb/plugin" CACHE STRING "" FORCE)
+# Bundled zlib in Connector/C still declares cmake_minimum_required(2.4.4).
+# CMake 4.x removed <3.5 compatibility unless this policy floor is set.
+set(CMAKE_POLICY_VERSION_MINIMUM 3.5 CACHE STRING "" FORCE)
+
 # Prefer static auth/IO plugins so the SA-MP plugin is self-contained.
 set(CLIENT_PLUGIN_CACHING_SHA2_PASSWORD STATIC CACHE STRING "" FORCE)
 set(CLIENT_PLUGIN_SHA256_PASSWORD STATIC CACHE STRING "" FORCE)

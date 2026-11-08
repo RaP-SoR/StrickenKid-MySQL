@@ -37,7 +37,7 @@ jobs:
           $vsPath = & $vswhere -latest -products * -requires Microsoft.VisualStudio.Component.VC.Tools.x86.x64 -property installationPath
           if (-not $vsPath) { throw "Visual Studio with MSVC x86 tools not found" }
           $vcvars = Join-Path $vsPath "VC\Auxiliary\Build\vcvarsall.bat"
-          cmd /c "`"$vcvars`" x86 && cmake -S . -B build -G Ninja -DCMAKE_BUILD_TYPE=Release && cmake --build build --config Release"
+          cmd /c "`"$vcvars`" x86 && cmake -S . -B build -G Ninja -DCMAKE_BUILD_TYPE=Release -DCMAKE_POLICY_VERSION_MINIMUM=3.5 && cmake --build build --config Release"
           if ($LASTEXITCODE -ne 0) { throw "Windows Win32 build failed" }
 
       - name: Verify PE machine type
@@ -113,6 +113,7 @@ jobs:
         run: |
           set -eux
           cmake -S . -B build -G Ninja -DCMAKE_BUILD_TYPE=Release \
+            -DCMAKE_POLICY_VERSION_MINIMUM=3.5 \
             -DCMAKE_C_FLAGS="-m32" \
             -DCMAKE_CXX_FLAGS="-m32" \
             -DCMAKE_EXE_LINKER_FLAGS="-m32" \
