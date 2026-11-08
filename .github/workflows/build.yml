@@ -1,0 +1,124 @@
+name: Build
+
+on:
+  push:
+    branches: [master, main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  windows:
+    name: Windows Win32
+    runs-on: windows-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: Configure + build (Win32 / Ninja)
+        shell: pwsh
+        run: |
+          $vswhere = "${env:ProgramFiles(x86)}\Microsoft Visual Studio\Installer\vswhere.exe"
+          $vsPath = & $vswhere -latest -products * -requires Microsoft.VisualStudio.Component.VC.Tools.x86.x64 -property installationPath
+          if (-not $vsPath) { throw "Visual Studio with MSVC x86 tools not found" }
+          $vcvars = Join-Path $vsPath "VC\Auxiliary\Build\vcvarsall.bat"
+          cmd /c "`"$vcvars`" x86 && cmake -S . -B build -G Ninja -DCMAKE_BUILD_TYPE=Release && cmake --build build --config Release"
+          if ($LASTEXITCODE -ne 0) { throw "Windows Win32 build failed" }
+
+      - name: Verify PE machine type
+        shell: pwsh
+        run: |
+          $vswhere = "${env:ProgramFiles(x86)}\Microsoft Visual Studio\Installer\vswhere.exe"
+          $vsPath = & $vswhere -latest -products * -requires Microsoft.VisualStudio.Component.VC.Tools.x86.x64 -property installationPath
+          $dumpbin = Get-ChildItem $vsPath -Recurse -Filter dumpbin.exe |
+            Where-Object { $_.FullName -match '\\x86\\dumpbin.exe$' } |
+            Select-Object -First 1 -ExpandProperty FullName
+          if (-not $dumpbin) { throw "dumpbin.exe not found" }
+          $headers = & $dumpbin /headers build\bin\mysql.dll | Out-String
+          if ($headers -notmatch '14C machine \(x86\)') {
+            throw "mysql.dll is not a 32-bit (x86) PE image"
+          }
+          Write-Host "OK: mysql.dll is Win32 (x86)"
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: mysql-windows-win32
+          path: build/bin/mysql.dll
+          if-no-files-found: error
+
+  linux:
+    name: Linux i386 (${{ matrix.name }})
+    runs-on: ubuntu-latest
+    container: ${{ matrix.container }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          # Build on the oldest glibc target first — that artifact runs on newer distros.
+          - name: ubuntu-20.04
+            container: ubuntu:20.04
+          - name: ubuntu-22.04
+            container: ubuntu:22.04
+          - name: ubuntu-24.04
+            container: ubuntu:24.04
+          - name: debian-12
+            container: debian:12
+          - name: debian-13
+            container: debian:13
+    steps:
+      - name: Install build dependencies
+        env:
+          DEBIAN_FRONTEND: noninteractive
+        run: |
+          set -eux
+          . /etc/os-release
+          apt-get update
+          apt-get install -y --no-install-recommends ca-certificates
+          dpkg --add-architecture i386
+          apt-get update
+          apt-get install -y --no-install-recommends \
+            git \
+            cmake \
+            ninja-build \
+            pkg-config \
+            g++-multilib \
+            gcc-multilib \
+            libc6-dev-i386 \
+            libssl-dev:i386 \
+            zlib1g-dev:i386
+
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: Configure (i386)
+        run: |
+          set -eux
+          cmake -S . -B build -G Ninja -DCMAKE_BUILD_TYPE=Release \
+            -DCMAKE_C_FLAGS="-m32" \
+            -DCMAKE_CXX_FLAGS="-m32" \
+            -DCMAKE_EXE_LINKER_FLAGS="-m32" \
+            -DCMAKE_SHARED_LINKER_FLAGS="-m32"
+
+      - name: Build
+        run: cmake --build build --config Release
+
+      - name: Verify ELF class
+        run: |
+          set -eux
+          file build/bin/mysql.so
+          file build/bin/mysql.so | grep -Eq 'ELF 32-bit'
+          readelf -h build/bin/mysql.so | grep -E 'Class: +ELF32'
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: mysql-linux-i386-${{ matrix.name }}
+          path: build/bin/mysql.so
+          if-no-files-found: error

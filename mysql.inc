@@ -1,6 +1,7 @@
 /**
- *     SA:MP MySQL v2.1 Functions
+ *     SA:MP MySQL v2.2 Functions
  *  (c) Copyright 2011, StrickenKid
+ *  (c) Copyright Repsol
  *
  **/
 

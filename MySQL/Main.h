@@ -1,6 +1,7 @@
 /*
-	SA:MP MySQL Plugin v2.1
+	SA:MP MySQL Plugin v2.2
 	Copyright (c) 2011, StrickenKid
+	Copyright (c) Repsol
 
 
 	This program is free software: you can redistribute it and/or modify
@@ -21,6 +22,13 @@
 #define __MAIN_H
 
 #if defined(WIN32) || defined(_WIN32) || defined(__WIN32__)
+#	ifndef WIN32_LEAN_AND_MEAN
+#		define WIN32_LEAN_AND_MEAN
+#	endif
+#	ifndef NOMINMAX
+#		define NOMINMAX
+#	endif
+#	include <winsock2.h>
 #	include <windows.h>
 #	include <process.h>
 #	define OS_WINDOWS
@@ -44,15 +52,15 @@ using std::queue;
 using std::list;
 
 // plugin sdk
-#include "../SDK/amx/amx.h"
-#include "../SDK/plugincommon.h"
+#include <amx/amx.h>
+#include <plugincommon.h>
 
-// mysql headers
-#include "../include/mysql.h"
+// mysql / MariaDB Connector/C headers
+#include <mysql.h>
 
 // plugin headers
 #include "Base.h"
-#include "Mysql.h"
+#include "SkMysql.h"
 #include "Natives.h"
 #include "Thread.h"
 
