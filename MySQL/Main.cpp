@@ -1,7 +1,7 @@
 /*
-	SA:MP MySQL Plugin v2.1
+	SA:MP MySQL Plugin v2.2
 	Copyright (c) 2011, StrickenKid
-
+	Copyright (c) 2026, RaPSoR
 
 	This program is free software: you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -25,7 +25,7 @@ extern void*	pAMXFunctions;
 logprintf_t		logprintf;
 FILE*			mLogFile;
 list<AMX *>		pAmx;
-MySQL*			my[ MAX_CONNECTIONS ];
+MySQL*			my[ MAX_CONNECTIONS ] = {};
 
 
 PLUGIN_EXPORT unsigned int PLUGIN_CALL Supports() 
@@ -45,6 +45,7 @@ PLUGIN_EXPORT bool PLUGIN_CALL Load( void **ppData )
 	}
 
 	logprintf( " SA:MP MySQL Plugin v%s Loaded.", PLUGIN_VERSION );
+	logprintf( " Copyright (c) 2011 StrickenKid, Copyright (c) 2026 RaPSoR" );
 
 	Log( "-------------------------" );
 	Log( "     Logging Started" );

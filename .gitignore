@@ -1,0 +1,14 @@
+/build/
+/out/
+/cmake-build-*/
+/.vs/
+/.idea/
+/*.user
+/*.suo
+*.obj
+*.o
+*.pdb
+*.ilk
+*.exp
+*.lib
+mysql_log.txt
